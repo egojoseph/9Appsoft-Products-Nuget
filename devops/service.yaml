@@ -1,0 +1,74 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment-request
+  labels:
+    app: payment-request
+spec:
+  ports:
+  - name: http
+    port: 80
+    targetPort: 80
+  selector:
+    app: payment-request
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-request
+  labels:
+    app: payment-request
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: payment-request
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0    
+  template:
+    metadata:
+      labels:
+        app: payment-request
+    spec:
+      containers:
+      - name: payment-request
+        image: 863852973330.dkr.ecr.eu-west-2.amazonaws.com/payment-request:imgtag
+        resources:
+          requests:
+            memory: "200Mi"
+            cpu: "49m"
+          limits:
+            memory: "400Mi"
+            cpu: "300m"
+        envFrom:
+        - configMapRef:
+            name: common-services-config
+        ports: 
+        - name: http
+          containerPort: 80
+        volumeMounts:
+        - name: config-file
+          mountPath: "/app/application-cfgprofile.yml"  # "secret-file" file will be created in "/app" directory
+          subPath: application.yml
+        - name: tz-lagos
+          mountPath: /etc/localtime
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: node.kubernetes.io/description
+                operator: In
+                values:
+                - cfgprofile
+                - wayabank-cfgprofile 
+      volumes:
+        - name: config-file
+          secret:
+            secretName: payment-request-config-file # name of the Secret
+        - name: tz-lagos
+          hostPath:
+            path: /usr/share/zoneinfo/Africa/Lagos
