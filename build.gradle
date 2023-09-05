@@ -1,0 +1,138 @@
+plugins {
+	id 'org.springframework.boot' version '2.4.2'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'java'
+	id "jacoco"
+	id "org.sonarqube" version "2.7"
+	id 'org.barfuin.gradle.jacocolog' version '1.2.3'
+}
+
+group = 'com.wayapaychat.payment.request.service'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+
+
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+
+repositories {
+	mavenCentral()
+	maven { url 'https://repo.spring.io/milestone' }
+}
+
+ext {
+	set('springCloudVersion', "2020.0.0")
+}
+
+dependencies {
+
+
+	implementation 'io.jsonwebtoken:jjwt:0.9.1'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.cloud:spring-cloud-sleuth-zipkin'
+	implementation 'org.springframework.cloud:spring-cloud-starter-sleuth'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+	implementation 'org.apache.poi:poi:5.0.0'
+	implementation 'org.apache.poi:poi-ooxml:5.0.0'
+	implementation 'com.google.zxing:core:3.4.0'
+	implementation 'com.google.zxing:javase:3.4.0'
+
+	compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '2.2.6.RELEASE'
+	compile 'org.springframework.kafka:spring-kafka'
+	compile group: 'org.modelmapper', name: 'modelmapper', version: '2.3.9'
+	compile group: 'com.google.code.gson', name: 'gson'
+	compile group: 'io.springfox', name: 'springfox-swagger2', version: '2.9.2'
+	compile group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.9.2'
+	compile group: 'javax.validation', name: 'validation-api', version: '2.0.1.Final'
+	compile group: 'org.hibernate.validator', name: 'hibernate-validator', version: '6.1.6.Final'
+
+	compileOnly 'org.projectlombok:lombok'
+	runtimeOnly 'org.postgresql:postgresql'
+	runtimeOnly 'com.h2database:h2'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation('com.h2database:h2')
+	testCompile group: 'org.springframework.kafka', name: 'spring-kafka-test', version: '2.6.3'
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
+}
+
+test {
+	useJUnitPlatform()
+	finalizedBy jacocoTestCoverageVerification
+	finalizedBy jacocoTestReport
+	maxHeapSize = "2048m"
+}
+
+jacoco {
+	toolVersion = "0.8.4"
+	reportsDir = file("$buildDir/customJacocoReportDir")
+}
+
+jacocoTestReport {
+	reports {
+		xml.enabled true
+		csv.enabled false
+		html.destination file("${buildDir}/jacocoHtml")
+		xml.destination file("${buildDir}/jacocoXml")
+		xml.destination file("build/reports/jacoco/test/jacocoTestReport.xml")
+	}
+}
+
+jacocoTestCoverageVerification {
+
+	violationRules {
+		rule {
+			limit {
+				counter = 'LINE'
+				minimum = 0.0
+			}
+		}
+		rule {
+			limit {
+				counter = 'BRANCH'
+				minimum = 0.0
+			}
+		}
+		rule {
+			limit {
+				counter = 'CLASS'
+				minimum = 0.0
+			}
+		}
+		rule {
+			limit {
+				counter = 'METHOD'
+				minimum = 0.0
+			}
+		}
+	}
+}
+
+sonarqube {
+	properties {
+		property 'sonar.sources', 'src/main'
+
+		System.setProperty('sonar.host.url', 'https://sonarqube.waya-pay.com')
+		System.setProperty('sonar.login', 'admin')
+		System.setProperty('sonar.password', 'admin')
+		System.setProperty('sonar.coverage.jacoco.xmlReportPaths', 'build/reports/jacoco/test/jacocoTestReport.xml')
+		System.setProperty('sonar.java.coveragePlugin', 'jacoco')
+		property 'sonar.projectName', 'Payment Request Service'
+		property "sonar.exclusions", "**/*Generated.java"
+	}
+}
+
