@@ -1,6 +1,6 @@
 pipeline {
 
-    agent { label 'worker1' }
+    agent { label 'N0de1' }
 
     environment {
         AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
@@ -8,7 +8,7 @@ pipeline {
         AWS_DEFAULT_REGION = credentials('AWS_DEFAULT_REGION')
         CLUSTER_NAME = credentials('CLUSTER_NAME')
         REGISTRY = credentials('REGISTRY')
-        SERVICE_NAME = 'payment-request'
+        SERVICE_NAME = 'payment-new-request'
         VERSION = sh (script: 'git rev-parse HEAD', returnStdout: true).trim().take(10)
         NAMESPACE = "${env.GIT_BRANCH == 'production' ? 'production' : 'staging' }"
     }
