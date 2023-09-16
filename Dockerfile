@@ -1,4 +1,4 @@
-FROM openjdk:13-jdk-alpine as bas
+FROM openjdk:13-jdk-alpine as base
 
 WORKDIR /app
 RUN addgroup -S waya && adduser -S waya -G waya
