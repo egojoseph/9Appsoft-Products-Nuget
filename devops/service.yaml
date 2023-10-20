@@ -35,7 +35,7 @@ spec:
     spec:
       containers:
       - name: payment-request
-        image: 863852973330.dkr.ecr.eu-west-2.amazonaws.com/payment-request:imgtag
+        image: 86313073330.dkr.ecr.eu-west-2.amazonaws.com/payment-request:imgtag
         resources:
           requests:
             memory: "200Mi"
@@ -64,7 +64,6 @@ spec:
                 operator: In
                 values:
                 - cfgprofile
-                - wayabank-cfgprofile 
       volumes:
         - name: config-file
           secret:
