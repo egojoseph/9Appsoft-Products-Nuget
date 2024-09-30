@@ -11,7 +11,10 @@ group = 'com.wayapaychat.payment.request.service'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
-
+.idea
+*.iws
+*.iml
+*.ipr
 
 
 configurations {
